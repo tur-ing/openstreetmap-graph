@@ -4,7 +4,7 @@
     <style>
         #cy {
             width: 100%;
-            height: 500px;
+            height: 400px;
             display: block;
         }
     </style>
@@ -12,14 +12,16 @@
 <body class="container">
 
     <header>
-        <h2>Graph</h2>
+        <h2>Graph Algorithms</h2>
     </header>
 
     <main>
         <div class="jumbotron">
             <div id="cy"></div>
             <h3>Nodes</h3>
-            <p style="font-size:8px;"><%- JSON.stringify(nodeArray) %></p>
+            <p><%- JSON.stringify(numberOfNodes) %></p>
+            <h3>Ways</h3>
+            <p><%- JSON.stringify(numberOfWays) %></p>
         </div>
     </main>
 
@@ -30,9 +32,9 @@
     <script>
         var cy = cytoscape({
 
-            container: document.getElementById('cy'), // container to render in
+            container: document.getElementById('cy'),
 
-            elements: [ // list of graph elements to start with
+            elements: [
                 { // node a
                     data: { id: 'a' }
                 },
@@ -44,7 +46,7 @@
                 }
             ],
 
-            style: [ // the stylesheet for the graph
+            style: [
                 {
                     selector: 'node',
                     style: {
