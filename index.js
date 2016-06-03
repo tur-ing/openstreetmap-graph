@@ -8,6 +8,7 @@ var nodeArray = [];
 var numberOfNodes;
 var wayArray = [];
 var edgeArray = [];
+var graph = [];
 var objectNodeArray = [];
 var numberOfWays;
 var port = 3000;
@@ -29,17 +30,21 @@ for (var key in jsonMap.features) {
     }
 }
 
+function NodeData(nodeId) {
+    this.id = nodeId;
+}
+
 function Node(nodeId, long, lat) {
     this.nodeId = nodeId;
     this.long = long;
     this.lat = lat;
 }
 
-function Edge(edgeId, source, target, weight) {
+function Edge(edgeId, source, target, distance) {
     this.edgeId = edgeId;
     this.source = source;
     this.target = target;
-    this.weight = weight;
+    this.weight = distance;
 }
 
 function Way(wayId, edges) {
@@ -100,18 +105,36 @@ for (var key in wayArray) {
         };
 
         if(isOdd(j) == false) {
-            var nodeId = wayArray[key].id + "/node/" + h;
-            var nodeSource = new Node(nodeId, oldLat, oldLong);
+            var nodeSourceId = wayArray[key].id + "/node/" + h + "src";
+            var nodeTargetId = wayArray[key].id + "/node/" + h + "tar";
+            var nodeSource = new Node(nodeSourceId, oldLat, oldLong);
             console.log("sourceLong: " + nodeSource.long + ", sourceLat: " + nodeSource.lat);
-            var nodeTarget = new Node(nodeId, currentLat, currentLong);
+            var nodeTarget = new Node(nodeTargetId, currentLat, currentLong);
             console.log("targetLong: " + nodeTarget.long + ", targetLat: " + nodeTarget.lat);
 
-            var edgeId = (wayArray[key].id + "/edge/" + h);
-            var edge = new Edge(edgeId, nodeSource, nodeTarget)
+            if(nodeSource.long !== null && nodeSource.lat !== null) {
+                var distance = getDistance(nodeSource.lat, nodeSource.long, nodeTarget.lat, nodeTarget.long);
+                console.log("distance between no. " + (h-1) + " - no. " + h + ": " + distance + "km");
+                var edgeId = (wayArray[key].id + "/edge/" + h);
+                var edge = new Edge(edgeId, nodeSource, nodeTarget, distance);
+                edgeArray.push(edge);
+
+                // var graphEntry1 = JSON.parse("{\"data\":{\"id\":\"" + nodeSourceId + "\"}}");
+                // var graphEntry2 = JSON.parse("{\"data\":{\"id\":\"" + nodeTargetId + "\"}}");
+                // var graphEntry3 = JSON.parse("{\"data\":{\"id\":\"" + edgeId + "\",\"source\":\"" + nodeSourceId + "\",\"target\":\"" + nodeTargetId + "\"}}");
+
+                AddRowToTable(nodeSourceId)
+                // graph.push(graphEntry2);
+                // graph.push(graphEntry3);
+            }
             h++;
         };
     };
 };
+
+function AddRowToTable(id) {
+    graph.push({'id' : id});
+}
 
 console.log("number of nodes: " + nodeArray.length);
 numberOfNodes = nodeArray.length;
@@ -123,7 +146,8 @@ app.get('/', function (req, res) {
         nodeArray: nodeArray,
         wayArray: wayArray,
         numberOfNodes: numberOfNodes,
-        numberOfWays: numberOfWays
+        numberOfWays: numberOfWays,
+        graph: graph
     });
 });
 
@@ -137,6 +161,10 @@ app.get('/ways', function (req, res) {
 
 app.get('/edges', function (req, res) {
     res.json(edgeArray);
+});
+
+app.get('/graph', function (req, res) {
+    res.json(graph);
 });
 
 app.listen(port, function () {

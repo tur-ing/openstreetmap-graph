@@ -34,7 +34,9 @@
 
             container: document.getElementById('cy'),
 
-            elements: [
+            elements: <%- JSON.stringify(graph) %>,
+
+            /*elements: [
                 { // node a
                     data: { id: 'a' }
                 },
@@ -44,7 +46,7 @@
                 { // edge ab
                     data: { id: 'ab', source: 'a', target: 'b' }
                 }
-            ],
+            ],*/
 
             style: [
                 {
